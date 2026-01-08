@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share Your Location</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        /* Form Container */
+        .form-container {
+            background: white;
+            border-radius: 0 0 10px 10px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .customer-icon {
+            font-size: 4rem;
+            color: #4285f4;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #4285f4;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+        }
+        
+        .required {
+            color: #ea4335;
+        }
+        
+        .location-status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-align: center;
+        }
+        
+        .location-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .location-success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .location-error {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn-primary {
+            background-color: #4285f4;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3367d6;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: #444;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+        
+        .btn-success {
+            background-color: #34a853;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #2e8b47;
+        }
+        
+        /* Success Message */
+        .success-message {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #d1fae5;
+            border-radius: 8px;
+            color: #065f46;
+            text-align: center;
+        }
+        
+        .success-message i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        /* Accuracy Info */
+        .accuracy-info {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            max-width: 400px;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .success {
+            background-color: #34a853;
+        }
+        
+        .error {
+            background-color: #ea4335;
+        }
+        
+        .info {
+            background-color: #4285f4;
+        }
+        
+        /* Responsive */
+        @media (max-width: 500px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .customer-icon {
+                font-size: 3rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-map-marker-alt"></i> Share Your Location</h1>
+            <p>Help us find you quickly and provide better service</p>
+        </header>
+        
+        <div class="form-container">
+            <div class="customer-icon">
+                <i class="fas fa-map-marked-alt"></i>
+            </div>
+            
+            <h2 style="margin-bottom: 20px; color: #182848; text-align: center;">Location Sharing</h2>
+            <p style="margin-bottom: 30px; color: #666; text-align: center;">
+                Please allow location access and provide your phone number so we can find you easily.
+            </p>
+            
+            <div class="form-group">
+                <label for="customerName">Your Name (Optional)</label>
+                <input type="text" id="customerName" placeholder="Enter your name">
+            </div>
+            
+            <div class="form-group">
+                <label for="phoneNumber">Phone Number <span class="required">*</span></label>
+                <input type="tel" id="phoneNumber" placeholder="Enter your phone number" required>
+            </div>
+            
+            <div id="locationStatus" class="location-status location-pending">
+                <i class="fas fa-map-pin"></i> Location permission not granted yet
+            </div>
+            
+            <button class="btn btn-primary" id="getLocationBtn">
+                <i class="fas fa-location-crosshairs"></i> Share My Location
+            </button>
+            
+            <button class="btn btn-secondary" id="resetBtn" style="display: none; margin-top: 10px;">
+                <i class="fas fa-redo"></i> Share Another Location
+            </button>
+            
+            <div id="successMessage" class="success-message">
+                <i class="fas fa-check-circle"></i> 
+                <h3 style="margin-bottom: 10px;">Location Shared Successfully!</h3>
+                <p>Your location and phone number have been saved. We can now find you easily.</p>
+                <p style="margin-top: 15px; font-size: 0.9rem;">
+                    <i class="fas fa-info-circle"></i> You can close this page now.
+                </p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Your location data is securely stored and will be used only to find you.</p>
+        </footer>
+    </div>
+    
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // ==============================================
+        // YOUR JSONBin.io CREDENTIALS
+        // ==============================================
+        const BIN_ID = '6960140d43b1c97be92293b4'; // Your Bin ID
+        const API_KEY = '$2a$10$PdqXWWRKGJ0qoA1pKNRHHOT2lXGikA/vl40fftBIueYWTxUwTj4PW'; // Your X-Master-Key
+        const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+        // ==============================================
+        
+        // DOM Elements
+        const customerNameInput = document.getElementById('customerName');
+        const phoneNumberInput = document.getElementById('phoneNumber');
+        const locationStatus = document.getElementById('locationStatus');
+        const getLocationBtn = document.getElementById('getLocationBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const successMessage = document.getElementById('successMessage');
+        const notification = document.getElementById('notification');
+        
+        // State
+        let currentLocation = null;
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            
+            // Focus on phone number input
+            phoneNumberInput.focus();
+        });
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            getLocationBtn.addEventListener('click', getCustomerLocation);
+            resetBtn.addEventListener('click', resetForm);
+            
+            // Check for Enter key in phone field
+            phoneNumberInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    getCustomerLocation();
+                }
+            });
+        }
+        
+        // Get customer location
+        function getCustomerLocation() {
+            const phoneNumber = phoneNumberInput.value.trim();
+            const customerName = customerNameInput.value.trim();
+            
+            // Validate phone number
+            if (!phoneNumber) {
+                showNotification('Please enter your phone number', 'error');
+                phoneNumberInput.focus();
+                return;
+            }
+            
+            // Validate phone number format (basic validation)
+            if (phoneNumber.length < 10) {
+                showNotification('Please enter a valid phone number (at least 10 digits)', 'error');
+                phoneNumberInput.focus();
+                return;
+            }
+            
+            // Update status
+            locationStatus.className = 'location-status location-pending';
+            locationStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting your location...';
+            getLocationBtn.disabled = true;
+            
+            // Check if geolocation is available
+            if (!navigator.geolocation) {
+                locationStatus.className = 'location-status location-error';
+                locationStatus.innerHTML = '<i class="fas fa-exclamation-circle"></i> Geolocation is not supported by your browser';
+                getLocationBtn.disabled = false;
+                return;
+            }
+            
+            // Get current position
+            navigator.geolocation.getCurrentPosition(
+                // Success callback
+                async (position) => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    const accuracy = position.coords.accuracy;
+                    
+                    currentLocation = {
+                        lat: latitude,
+                        lng: longitude,
+                        accuracy: accuracy
+                    };
+                    
+                    // Update status
+                    locationStatus.className = 'location-status location-success';
+                    locationStatus.innerHTML = `
+                        <i class="fas fa-check-circle"></i> Location found! 
+                        <div class="accuracy-info">
+                            <i class="fas fa-bullseye"></i> Accuracy: ${Math.round(accuracy)} meters
+                        </div>
+                    `;
+                    
+                    // Get address from coordinates
+                    try {
+                        const address = await getAddressFromCoordinates(latitude, longitude);
+                        
+                        // Create customer object
+                        const customer = {
+                            id: Date.now().toString(),
+                            name: customerName || 'Anonymous Customer',
+                            phone: phoneNumber,
+                            location: {
+                                lat: latitude,
+                                lng: longitude,
+                                address: address,
+                                accuracy: Math.round(accuracy)
+                            },
+                            timestamp: new Date().toISOString(),
+                            status: 'active'
+                        };
+                        
+                        // Save customer to database
+                        await saveCustomer(customer);
+                        
+                        // Show success message
+                        successMessage.style.display = 'block';
+                        getLocationBtn.style.display = 'none';
+                        resetBtn.style.display = 'block';
+                        
+                        // Scroll to success message
+                        successMessage.scrollIntoView({ behavior: 'smooth' });
+                        
+                        showNotification('Location shared successfully!', 'success');
+                        
+                    } catch (error) {
+                        console.error('Error getting address:', error);
+                        
+                        // Still save with coordinates only
+                        const customer = {
+                            id: Date.now().toString(),
+                            name: customerName || 'Anonymous Customer',
+                            phone: phoneNumber,
+                            location: {
+                                lat: latitude,
+                                lng: longitude,
+                                address: `Coordinates: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
+                                accuracy: Math.round(accuracy)
+                            },
+                            timestamp: new Date().toISOString(),
+                            status: 'active'
+                        };
+                        
+                        await saveCustomer(customer);
+                        
+                        // Show success message
+                        successMessage.style.display = 'block';
+                        getLocationBtn.style.display = 'none';
+                        resetBtn.style.display = 'block';
+                        
+                        showNotification('Location shared successfully!', 'success');
+                    }
+                },
+                // Error callback
+                (error) => {
+                    console.error('Geolocation error:', error);
+                    
+                    let errorMessage = '';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = 'Location permission denied. Please allow location access in your browser settings.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = 'Location information is unavailable.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = 'Location request timed out.';
+                            break;
+                        default:
+                            errorMessage = 'An unknown error occurred.';
+                    }
+                    
+                    locationStatus.className = 'location-status location-error';
+                    locationStatus.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${errorMessage}`;
+                    getLocationBtn.disabled = false;
+                    
+                    showNotification('Failed to get location: ' + errorMessage, 'error');
+                },
+                // Options
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+        
+        // Get address from coordinates using free OpenStreetMap API
+        async function getAddressFromCoordinates(lat, lng) {
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+                const data = await response.json();
+                
+                if (data && data.display_name) {
+                    return data.display_name;
+                } else {
+                    return `Location: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                }
+            } catch (error) {
+                console.error('Geocoding error:', error);
+                return `Coordinates: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            }
+        }
+        
+        // Save customer to JSONBin.io
+        async function saveCustomer(customer) {
+            try {
+                // First, load existing customers
+                const response = await fetch(API_URL + '/latest', {
+                    headers: {
+                        'X-Master-Key': API_KEY,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                let existingData = { customers: [] };
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.record && data.record.customers) {
+                        existingData = data.record;
+                    }
+                }
+                
+                // Add new customer to the list
+                existingData.customers.push(customer);
+                
+                // Save updated list
+                const saveResponse = await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'X-Master-Key': API_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(existingData)
+                });
+                
+                if (!saveResponse.ok) {
+                    throw new Error('Failed to save to database');
+                }
+                
+                console.log('Customer saved successfully:', customer);
+                return true;
+            } catch (error) {
+                console.error('Error saving customer:', error);
+                
+                // Fallback to localStorage
+                const localData = localStorage.getItem('customerLocations');
+                let localCustomers = localData ? JSON.parse(localData) : [];
+                localCustomers.push(customer);
+                localStorage.setItem('customerLocations', JSON.stringify(localCustomers));
+                
+                showNotification('Saved locally', 'info');
+                return false;
+            }
+        }
+        
+        // Reset form for another submission
+        function resetForm() {
+            customerNameInput.value = '';
+            phoneNumberInput.value = '';
+            locationStatus.className = 'location-status location-pending';
+            locationStatus.innerHTML = '<i class="fas fa-map-pin"></i> Location permission not granted yet';
+            successMessage.style.display = 'none';
+            getLocationBtn.style.display = 'block';
+            getLocationBtn.disabled = false;
+            resetBtn.style.display = 'none';
+            
+            phoneNumberInput.focus();
+        }
+        
+        // Show notification
+        function showNotification(message, type) {
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Log app info
+        console.log('Customer Location Sharing Page');
+        console.log('Send this link to customers: ', window.location.href);
+    </script>
+</body>
+</html>
